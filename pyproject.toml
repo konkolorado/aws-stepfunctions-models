@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "aws-stepfunctions-models"
+version = "0.1.0"
+description = "AWS Step Function definition validation via Pydantic!"
+authors = ["Uriel Mandujano <5422638+konkolorado@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pydantic = "^1.9.0"
+arrow = "^1.2.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.0"
+mypy = "^0.931"
+black = "^22.1.0"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+src_paths = ["aws_stepfunctions_models", "tests"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
