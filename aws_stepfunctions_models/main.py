@@ -26,6 +26,7 @@ class StateType(str, enum.Enum):
     Fail = "Fail"
     Parallel = "Parallel"
     Map = "Map"
+    Succeed = "Succeed"
 
 
 class Catchers(BaseModel, CollectibleTransitions):
@@ -266,7 +267,7 @@ class FailState(BaseModel, CollectibleTransitions):
 
 
 class SucceedState(BaseModel, CollectibleTransitions):
-    Type: te.Literal[StateType.Fail]
+    Type: te.Literal[StateType.Succeed]
     Comment: t.Optional[str] = None
     InputPath: t.Optional[str] = None
     OutputPath: t.Optional[str] = None
