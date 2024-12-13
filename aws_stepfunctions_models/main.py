@@ -32,7 +32,6 @@ class StateType(str, enum.Enum):
 class Catchers(BaseModel, CollectibleTransitions):
     ErrorEquals: t.List[str] = Field(..., min_items=1)
     Next: str
-    ResultPath: t.Optional[str]
 
     class Config:
         extra = Extra.forbid
@@ -443,7 +442,7 @@ StepFunctionState = te.Annotated[
 class StepFunctionDefinition(BaseModel):
     StartAt: str
     States: t.Dict[str, StepFunctionState]
-    Comment: t.Optional[str]
+    Comment: t.Optional[str] = None
 
     class Config:
         extra = Extra.forbid
