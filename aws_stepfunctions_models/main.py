@@ -40,7 +40,7 @@ class StateType(str, enum.Enum):
 
 
 class Catchers(BaseModel, CollectibleTransitions):
-    ErrorEquals: t.List[str] = Field(..., min_length=1)
+    ErrorEquals: list[str] = Field(..., min_length=1)
     Next: str
 
     model_config = ConfigDict(extra="forbid")
@@ -51,53 +51,53 @@ class Catchers(BaseModel, CollectibleTransitions):
 
 
 class Retriers(BaseModel):
-    ErrorEquals: t.List[str] = Field(..., min_length=1)
-    IntervalSeconds: t.Optional[PositiveInt] = None
-    MaxAttempts: t.Optional[PositiveInt] = None
-    BackoffRate: t.Optional[PositiveFloat] = None
+    ErrorEquals: list[str] = Field(..., min_length=1)
+    IntervalSeconds: PositiveInt | None = None
+    MaxAttempts: PositiveInt | None = None
+    BackoffRate: PositiveFloat | None = None
 
 
 class DataTestExpression(BaseModel):
     Variable: str
-    StringEquals: t.Optional[str] = None
-    StringEqualsPath: t.Optional[str] = None
-    StringLessThan: t.Optional[str] = None
-    StringLessThanPath: t.Optional[str] = None
-    StringGreaterThan: t.Optional[str] = None
-    StringGreaterThanPath: t.Optional[str] = None
-    StringLessThanEquals: t.Optional[str] = None
-    StringLessThanEqualsPath: t.Optional[str] = None
-    StringGreaterThanEquals: t.Optional[str] = None
-    StringGreaterThanEqualsPath: t.Optional[str] = None
-    StringMatches: t.Optional[str] = None
-    NumericEquals: t.Optional[str] = None
-    NumericEqualsPath: t.Optional[str] = None
-    NumericLessThan: t.Optional[str] = None
-    NumericLessThanPath: t.Optional[str] = None
-    NumericGreaterThan: t.Optional[str] = None
-    NumericGreaterThanPath: t.Optional[str] = None
-    NumericLessThanEquals: t.Optional[str] = None
-    NumericLessThanEqualsPath: t.Optional[str] = None
-    NumericGreaterThanEquals: t.Optional[str] = None
-    NumericGreaterThanEqualsPath: t.Optional[str] = None
-    BooleanEquals: t.Optional[StrictBool] = None
-    BooleanEqualsPath: t.Optional[str] = None
-    TimestampEquals: t.Optional[str] = None
-    TimestampEqualsPath: t.Optional[str] = None
-    TimestampLessThan: t.Optional[str] = None
-    TimestampLessThanPath: t.Optional[str] = None
-    TimestampGreaterThan: t.Optional[str] = None
-    TimestampGreaterThanPath: t.Optional[str] = None
-    TimestampLessThanEquals: t.Optional[str] = None
-    TimestampLessThanEqualsPath: t.Optional[str] = None
-    TimestampGreaterThanEquals: t.Optional[str] = None
-    TimestampGreaterThanEqualsPath: t.Optional[str] = None
-    IsNull: t.Optional[StrictBool] = None
-    IsPresent: t.Optional[StrictBool] = None
-    IsNumeric: t.Optional[StrictBool] = None
-    IsString: t.Optional[StrictBool] = None
-    IsBoolean: t.Optional[StrictBool] = None
-    IsTimestamp: t.Optional[StrictBool] = None
+    StringEquals: str | None = None
+    StringEqualsPath: str | None = None
+    StringLessThan: str | None = None
+    StringLessThanPath: str | None = None
+    StringGreaterThan: str | None = None
+    StringGreaterThanPath: str | None = None
+    StringLessThanEquals: str | None = None
+    StringLessThanEqualsPath: str | None = None
+    StringGreaterThanEquals: str | None = None
+    StringGreaterThanEqualsPath: str | None = None
+    StringMatches: str | None = None
+    NumericEquals: str | None = None
+    NumericEqualsPath: str | None = None
+    NumericLessThan: str | None = None
+    NumericLessThanPath: str | None = None
+    NumericGreaterThan: str | None = None
+    NumericGreaterThanPath: str | None = None
+    NumericLessThanEquals: str | None = None
+    NumericLessThanEqualsPath: str | None = None
+    NumericGreaterThanEquals: str | None = None
+    NumericGreaterThanEqualsPath: str | None = None
+    BooleanEquals: StrictBool | None = None
+    BooleanEqualsPath: str | None = None
+    TimestampEquals: str | None = None
+    TimestampEqualsPath: str | None = None
+    TimestampLessThan: str | None = None
+    TimestampLessThanPath: str | None = None
+    TimestampGreaterThan: str | None = None
+    TimestampGreaterThanPath: str | None = None
+    TimestampLessThanEquals: str | None = None
+    TimestampLessThanEqualsPath: str | None = None
+    TimestampGreaterThanEquals: str | None = None
+    TimestampGreaterThanEqualsPath: str | None = None
+    IsNull: StrictBool | None = None
+    IsPresent: StrictBool | None = None
+    IsNumeric: StrictBool | None = None
+    IsString: StrictBool | None = None
+    IsBoolean: StrictBool | None = None
+    IsTimestamp: StrictBool | None = None
 
     model_config = ConfigDict(extra="forbid")
     _enforce_jsonpath = field_validator(
@@ -135,9 +135,9 @@ class DataTestExpression(BaseModel):
 
 
 class BooleanExpression(BaseModel):
-    And: t.Optional[t.List[t.Union[DataTestExpression, BooleanExpression]]] = None
-    Or: t.Optional[t.List[t.Union[DataTestExpression, BooleanExpression]]] = None
-    Not: t.Optional[t.Union[DataTestExpression, BooleanExpression]] = None
+    And: list[DataTestExpression | BooleanExpression] | None = None
+    Or: list[DataTestExpression | BooleanExpression] | None = None
+    Not: DataTestExpression | BooleanExpression | None = None
 
     model_config = ConfigDict(extra="forbid")
     _enforce_min_items_if_set = field_validator("And", "Or")(enforce_min_items)
@@ -158,13 +158,13 @@ class BooleanExpressionWithTransition(BooleanExpression):
 
 class ChoiceState(BaseModel, CollectibleTransitions):
     Type: te.Literal[StateType.Choice]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
-    Choices: t.List[
-        t.Union[BooleanExpressionWithTransition, DataTestExpressionWithTransition]
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
+    Choices: list[
+        BooleanExpressionWithTransition | DataTestExpressionWithTransition
     ] = Field(..., min_length=1)
-    Default: t.Optional[str] = None
+    Default: str | None = None
     model_config = ConfigDict(extra="forbid")
 
     _enforce_jsonpath = field_validator("InputPath", "OutputPath")(enforce_jsonpath)
@@ -181,19 +181,19 @@ class ChoiceState(BaseModel, CollectibleTransitions):
 
 class TaskState(NextOrEndState, CollectibleTransitions):
     Type: te.Literal[StateType.Task]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
-    ResultPath: t.Optional[str] = None
-    ResultSelector: t.Optional[t.Dict[str, t.Any]] = None
-    Parameters: t.Optional[t.Dict[str, t.Any]] = None
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
+    ResultPath: str | None = None
+    ResultSelector: dict | None = None
+    Parameters: dict | None = None
     Resource: str
-    TimeoutSeconds: t.Optional[PositiveInt] = None
-    TimeoutSecondsPath: t.Optional[str] = None
-    HeartbeatSeconds: t.Optional[PositiveInt] = None
-    HeartbeatSecondsPath: t.Optional[str] = None
-    Retry: t.Optional[t.List[Retriers]] = Field(None, min_length=1)
-    Catch: t.Optional[t.List[Catchers]] = Field(None, min_length=1)
+    TimeoutSeconds: PositiveInt | None = None
+    TimeoutSecondsPath: str | None = None
+    HeartbeatSeconds: PositiveInt | None = None
+    HeartbeatSecondsPath: str | None = None
+    Retry: list[Retriers] | None = Field(None, min_length=1)
+    Catch: list[Catchers] | None = Field(None, min_length=1)
 
     model_config = ConfigDict(extra="forbid")
     _enforce_jsonpath = field_validator(
@@ -244,9 +244,9 @@ class TaskState(NextOrEndState, CollectibleTransitions):
 
 class FailState(BaseModel, CollectibleTransitions):
     Type: te.Literal[StateType.Fail]
-    Comment: t.Optional[str] = None
-    Cause: t.Optional[str] = None
-    Error: t.Optional[str] = None
+    Comment: str | None = None
+    Cause: str | None = None
+    Error: str | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -257,9 +257,9 @@ class FailState(BaseModel, CollectibleTransitions):
 
 class SucceedState(BaseModel, CollectibleTransitions):
     Type: te.Literal[StateType.Succeed]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -272,12 +272,12 @@ class SucceedState(BaseModel, CollectibleTransitions):
 
 class PassState(NextOrEndState, CollectibleTransitions):
     Type: te.Literal[StateType.Pass]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
-    Result: t.Optional[dict] = None
-    ResultPath: t.Optional[str] = None
-    Parameters: t.Optional[t.Dict[str, t.Any]] = None
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
+    Result: dict | None = None
+    ResultPath: str | None = None
+    Parameters: dict | None = None
 
     model_config = ConfigDict(extra="forbid")
 
@@ -296,13 +296,13 @@ class PassState(NextOrEndState, CollectibleTransitions):
 
 class WaitState(NextOrEndState, CollectibleTransitions):
     Type: te.Literal[StateType.Wait]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
-    Seconds: t.Optional[int] = None
-    Timestamp: t.Optional[datetime.datetime] = None
-    SecondsPath: t.Optional[str] = None
-    TimestampPath: t.Optional[str] = None
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
+    Seconds: int | None = None
+    Timestamp: datetime.datetime | None = None
+    SecondsPath: str | None = None
+    TimestampPath: str | None = None
 
     model_config = ConfigDict(extra="forbid")
     _enforce_jsonpath = field_validator(
@@ -324,15 +324,15 @@ class WaitState(NextOrEndState, CollectibleTransitions):
 
 class ParallelState(NextOrEndState, CollectibleTransitions):
     Type: te.Literal[StateType.Parallel]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
-    ResultPath: t.Optional[str] = None
-    ResultSelector: t.Optional[t.Dict[str, t.Any]] = None
-    Parameters: t.Optional[t.Dict[str, t.Any]] = None
-    Branches: t.List[StepFunctionDefinition]
-    Retry: t.Optional[t.List[Retriers]] = Field(None, min_length=1)
-    Catch: t.Optional[t.List[Catchers]] = Field(None, min_length=1)
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
+    ResultPath: str | None = None
+    ResultSelector: dict | None = None
+    Parameters: dict | None = None
+    Branches: list[StepFunctionDefinition]
+    Retry: list[Retriers] | None = Field(None, min_length=1)
+    Catch: list[Catchers] | None = Field(None, min_length=1)
 
     model_config = ConfigDict(extra="forbid")
 
@@ -363,17 +363,17 @@ class ParallelState(NextOrEndState, CollectibleTransitions):
 
 class MapState(NextOrEndState, CollectibleTransitions):
     Type: te.Literal[StateType.Map]
-    Comment: t.Optional[str] = None
-    InputPath: t.Optional[str] = None
-    OutputPath: t.Optional[str] = None
-    ResultPath: t.Optional[str] = None
-    ResultSelector: t.Optional[t.Dict[str, t.Any]] = None
-    Parameters: t.Optional[t.Dict[str, t.Any]] = None
+    Comment: str | None = None
+    InputPath: str | None = None
+    OutputPath: str | None = None
+    ResultPath: str | None = None
+    ResultSelector: dict | None = None
+    Parameters: dict | None = None
     Iterator: StepFunctionDefinition
-    ItemsPath: t.Optional[str] = None
-    MaxConcurrency: t.Optional[PositiveInt] = None
-    Retry: t.Optional[t.List[Retriers]] = Field(None, min_length=1)
-    Catch: t.Optional[t.List[Catchers]] = Field(None, min_length=1)
+    ItemsPath: str | None = None
+    MaxConcurrency: PositiveInt | None = None
+    Retry: list[Retriers] | None = Field(None, min_length=1)
+    Catch: list[Catchers] | None = Field(None, min_length=1)
 
     model_config = ConfigDict(extra="forbid")
 
@@ -418,7 +418,7 @@ StepFunctionState = te.Annotated[
 class StepFunctionDefinition(BaseModel):
     StartAt: str
     States: t.Dict[str, StepFunctionState]
-    Comment: t.Optional[str] = None
+    Comment: str | None = None
 
     model_config = ConfigDict(extra="forbid")
 

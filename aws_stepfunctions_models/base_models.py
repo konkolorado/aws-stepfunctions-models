@@ -1,5 +1,4 @@
 import abc
-import typing as t
 
 from pydantic import BaseModel, StrictBool, model_validator
 
@@ -11,7 +10,7 @@ class CollectibleTransitions(abc.ABC):
 
 
 class NextOrEndState(BaseModel):
-    Next: t.Optional[str] = None
+    Next: str | None = None
     End: StrictBool = False
 
     @model_validator(mode="after")

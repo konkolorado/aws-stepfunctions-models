@@ -3,10 +3,10 @@ import typing as t
 import arrow
 from pydantic import BaseModel
 
-T = t.TypeVar("T", str, dict[str, t.Any])
+T = t.TypeVar("T", str, dict)
 
 
-def enforce_jsonpath(item: t.Optional[T]) -> t.Optional[T]:
+def enforce_jsonpath(item: T | None) -> T | None:
     if item is None:
         return item
     elif isinstance(item, str) and not item.startswith("$."):
@@ -22,7 +22,7 @@ def enforce_jsonpath(item: t.Optional[T]) -> t.Optional[T]:
     return item
 
 
-def enforce_min_items(items: t.Optional[list]) -> t.Optional[list]:
+def enforce_min_items(items: list | None) -> list | None:
     if items is not None and len(items) == 0:
         raise ValueError("At least one item is required.")
     return items
