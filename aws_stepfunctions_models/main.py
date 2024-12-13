@@ -5,9 +5,17 @@ import enum
 import typing as t
 
 import typing_extensions as te
-from pydantic import BaseModel, Extra, Field, PositiveFloat, PositiveInt, StrictBool
-from pydantic import ValidationError as StepFunctionValidationError
-from pydantic import root_validator, validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PositiveFloat,
+    PositiveInt,
+    StrictBool,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from aws_stepfunctions_models.base_models import CollectibleTransitions, NextOrEndState
 from aws_stepfunctions_models.utils import (
@@ -16,6 +24,8 @@ from aws_stepfunctions_models.utils import (
     enforce_jsonpath,
     enforce_min_items,
 )
+
+StepFunctionValidationError = ValidationError
 
 
 class StateType(str, enum.Enum):
@@ -30,13 +40,10 @@ class StateType(str, enum.Enum):
 
 
 class Catchers(BaseModel, CollectibleTransitions):
-    ErrorEquals: t.List[str] = Field(..., min_items=1)
+    ErrorEquals: t.List[str] = Field(..., min_length=1)
     Next: str
 
-    class Config:
-        extra = Extra.forbid
-
-    _enforce_jsonpath = validator("ResultPath", allow_reuse=True)(enforce_jsonpath)
+    model_config = ConfigDict(extra="forbid")
 
     @property
     def transitions(self) -> list[str]:
@@ -44,7 +51,7 @@ class Catchers(BaseModel, CollectibleTransitions):
 
 
 class Retriers(BaseModel):
-    ErrorEquals: t.List[str] = Field(..., min_items=1)
+    ErrorEquals: t.List[str] = Field(..., min_length=1)
     IntervalSeconds: t.Optional[PositiveInt] = None
     MaxAttempts: t.Optional[PositiveInt] = None
     BackoffRate: t.Optional[PositiveFloat] = None
@@ -52,50 +59,48 @@ class Retriers(BaseModel):
 
 class DataTestExpression(BaseModel):
     Variable: str
-    StringEquals: t.Optional[str]
-    StringEqualsPath: t.Optional[str]
-    StringLessThan: t.Optional[str]
-    StringLessThanPath: t.Optional[str]
-    StringGreaterThan: t.Optional[str]
-    StringGreaterThanPath: t.Optional[str]
-    StringLessThanEquals: t.Optional[str]
-    StringLessThanEqualsPath: t.Optional[str]
-    StringGreaterThanEquals: t.Optional[str]
-    StringGreaterThanEqualsPath: t.Optional[str]
-    StringMatches: t.Optional[str]
-    NumericEquals: t.Optional[str]
-    NumericEqualsPath: t.Optional[str]
-    NumericLessThan: t.Optional[str]
-    NumericLessThanPath: t.Optional[str]
-    NumericGreaterThan: t.Optional[str]
-    NumericGreaterThanPath: t.Optional[str]
-    NumericLessThanEquals: t.Optional[str]
-    NumericLessThanEqualsPath: t.Optional[str]
-    NumericGreaterThanEquals: t.Optional[str]
-    NumericGreaterThanEqualsPath: t.Optional[str]
-    BooleanEquals: t.Optional[StrictBool]
-    BooleanEqualsPath: t.Optional[str]
-    TimestampEquals: t.Optional[str]
-    TimestampEqualsPath: t.Optional[str]
-    TimestampLessThan: t.Optional[str]
-    TimestampLessThanPath: t.Optional[str]
-    TimestampGreaterThan: t.Optional[str]
-    TimestampGreaterThanPath: t.Optional[str]
-    TimestampLessThanEquals: t.Optional[str]
-    TimestampLessThanEqualsPath: t.Optional[str]
-    TimestampGreaterThanEquals: t.Optional[str]
-    TimestampGreaterThanEqualsPath: t.Optional[str]
-    IsNull: t.Optional[StrictBool]
-    IsPresent: t.Optional[StrictBool]
-    IsNumeric: t.Optional[StrictBool]
-    IsString: t.Optional[StrictBool]
-    IsBoolean: t.Optional[StrictBool]
-    IsTimestamp: t.Optional[StrictBool]
+    StringEquals: t.Optional[str] = None
+    StringEqualsPath: t.Optional[str] = None
+    StringLessThan: t.Optional[str] = None
+    StringLessThanPath: t.Optional[str] = None
+    StringGreaterThan: t.Optional[str] = None
+    StringGreaterThanPath: t.Optional[str] = None
+    StringLessThanEquals: t.Optional[str] = None
+    StringLessThanEqualsPath: t.Optional[str] = None
+    StringGreaterThanEquals: t.Optional[str] = None
+    StringGreaterThanEqualsPath: t.Optional[str] = None
+    StringMatches: t.Optional[str] = None
+    NumericEquals: t.Optional[str] = None
+    NumericEqualsPath: t.Optional[str] = None
+    NumericLessThan: t.Optional[str] = None
+    NumericLessThanPath: t.Optional[str] = None
+    NumericGreaterThan: t.Optional[str] = None
+    NumericGreaterThanPath: t.Optional[str] = None
+    NumericLessThanEquals: t.Optional[str] = None
+    NumericLessThanEqualsPath: t.Optional[str] = None
+    NumericGreaterThanEquals: t.Optional[str] = None
+    NumericGreaterThanEqualsPath: t.Optional[str] = None
+    BooleanEquals: t.Optional[StrictBool] = None
+    BooleanEqualsPath: t.Optional[str] = None
+    TimestampEquals: t.Optional[str] = None
+    TimestampEqualsPath: t.Optional[str] = None
+    TimestampLessThan: t.Optional[str] = None
+    TimestampLessThanPath: t.Optional[str] = None
+    TimestampGreaterThan: t.Optional[str] = None
+    TimestampGreaterThanPath: t.Optional[str] = None
+    TimestampLessThanEquals: t.Optional[str] = None
+    TimestampLessThanEqualsPath: t.Optional[str] = None
+    TimestampGreaterThanEquals: t.Optional[str] = None
+    TimestampGreaterThanEqualsPath: t.Optional[str] = None
+    IsNull: t.Optional[StrictBool] = None
+    IsPresent: t.Optional[StrictBool] = None
+    IsNumeric: t.Optional[StrictBool] = None
+    IsString: t.Optional[StrictBool] = None
+    IsBoolean: t.Optional[StrictBool] = None
+    IsTimestamp: t.Optional[StrictBool] = None
 
-    class Config:
-        extra = Extra.forbid
-
-    _enforce_jsonpath = validator(
+    model_config = ConfigDict(extra="forbid")
+    _enforce_jsonpath = field_validator(
         "Variable",
         "StringEqualsPath",
         "StringLessThanPath",
@@ -113,23 +118,20 @@ class DataTestExpression(BaseModel):
         "TimestampGreaterThanPath",
         "TimestampLessThanEqualsPath",
         "TimestampGreaterThanEqualsPath",
-        allow_reuse=True,
     )(enforce_jsonpath)
-
-    _enforce_datetime_format = validator(
+    _enforce_datetime_format = field_validator(
         "TimestampEquals",
         "TimestampLessThan",
         "TimestampGreaterThan",
         "TimestampLessThanEquals",
         "TimestampGreaterThanEquals",
-        allow_reuse=True,
     )(enforce_datetime_format)
 
-    @root_validator(skip_on_failure=True)
-    def validate_only_one_rule_is_set(cls, values):
-        fields = [k for k in values.keys() if k not in {"Variable", "Next"}]
-        enforce_exclusive_fields(values, fields)
-        return values
+    @model_validator(mode="after")
+    def validate_only_one_rule_is_set(self):
+        fields = [k for k in self.model_fields_set if k not in {"Variable", "Next"}]
+        enforce_exclusive_fields(self, fields)
+        return self
 
 
 class BooleanExpression(BaseModel):
@@ -137,17 +139,13 @@ class BooleanExpression(BaseModel):
     Or: t.Optional[t.List[t.Union[DataTestExpression, BooleanExpression]]] = None
     Not: t.Optional[t.Union[DataTestExpression, BooleanExpression]] = None
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
+    _enforce_min_items_if_set = field_validator("And", "Or")(enforce_min_items)
 
-    _enforce_min_items_if_set = validator("And", "Or", allow_reuse=True)(
-        enforce_min_items
-    )
-
-    @root_validator(skip_on_failure=True)
-    def validate_only_one_boolean_choice_rule_set(cls, values):
-        enforce_exclusive_fields(values, ["And", "Or", "Not"])
-        return values
+    @model_validator(mode="after")
+    def validate_only_one_boolean_choice_rule_set(self):
+        enforce_exclusive_fields(self, ["And", "Or", "Not"])
+        return self
 
 
 class DataTestExpressionWithTransition(DataTestExpression):
@@ -165,15 +163,11 @@ class ChoiceState(BaseModel, CollectibleTransitions):
     OutputPath: t.Optional[str] = None
     Choices: t.List[
         t.Union[BooleanExpressionWithTransition, DataTestExpressionWithTransition]
-    ] = Field(..., min_items=1)
-    Default: t.Optional[str]
+    ] = Field(..., min_length=1)
+    Default: t.Optional[str] = None
+    model_config = ConfigDict(extra="forbid")
 
-    class Config:
-        extra = Extra.forbid
-
-    _enforce_jsonpath = validator("InputPath", "OutputPath", allow_reuse=True)(
-        enforce_jsonpath
-    )
+    _enforce_jsonpath = field_validator("InputPath", "OutputPath")(enforce_jsonpath)
 
     @property
     def transitions(self) -> list[str]:
@@ -198,13 +192,11 @@ class TaskState(NextOrEndState, CollectibleTransitions):
     TimeoutSecondsPath: t.Optional[str] = None
     HeartbeatSeconds: t.Optional[PositiveInt] = None
     HeartbeatSecondsPath: t.Optional[str] = None
-    Retry: t.Optional[t.List[Retriers]] = Field(None, min_items=1)
-    Catch: t.Optional[t.List[Catchers]] = Field(None, min_items=1)
+    Retry: t.Optional[t.List[Retriers]] = Field(None, min_length=1)
+    Catch: t.Optional[t.List[Catchers]] = Field(None, min_length=1)
 
-    class Config:
-        extra = Extra.forbid
-
-    _enforce_jsonpath = validator(
+    model_config = ConfigDict(extra="forbid")
+    _enforce_jsonpath = field_validator(
         "InputPath",
         "OutputPath",
         "Parameters",
@@ -212,24 +204,23 @@ class TaskState(NextOrEndState, CollectibleTransitions):
         "ResultSelector",
         "TimeoutSecondsPath",
         "HeartbeatSecondsPath",
-        allow_reuse=True,
     )(enforce_jsonpath)
 
-    @root_validator
-    def validate_mutually_exclusive_fields(cls, values):
-        exclusive_fields_list = [
-            ["InputPath", "Parameters"],
-            ["TimeoutSeconds", "TimeoutSecondsPath"],
-            ["HeartbeatSeconds", "HeartbeatSecondsPath"],
-        ]
-        for exlusive_fields in exclusive_fields_list:
-            enforce_exclusive_fields(values, exlusive_fields)
-        return values
+    @model_validator(mode="after")
+    def validate_mutually_exclusive_fields(self):
+        enforce_exclusive_fields(self, ["InputPath", "Parameters"], field_required=True)
+        enforce_exclusive_fields(
+            self, ["TimeoutSeconds", "TimeoutSecondsPath"], field_required=False
+        )
+        enforce_exclusive_fields(
+            self, ["HeartbeatSeconds", "HeartbeatSecondsPath"], field_required=False
+        )
+        return self
 
-    @root_validator
-    def validate_heartbeat_seconds_le_timeout_seconds(cls, values):
-        heartbeat_s = values.get("HeartbeatSeconds")
-        timeout_s = values.get("TimeoutSeconds")
+    @model_validator(mode="after")
+    def validate_heartbeat_seconds_le_timeout_seconds(self):
+        heartbeat_s = self.HeartbeatSeconds
+        timeout_s = self.TimeoutSeconds
         if (
             heartbeat_s is not None
             and timeout_s is not None
@@ -238,7 +229,7 @@ class TaskState(NextOrEndState, CollectibleTransitions):
             raise ValueError(
                 f"HeartbeatSeconds ({heartbeat_s}) cannot be greater than TimeoutSeconds ({timeout_s})"
             )
-        return values
+        return self
 
     @property
     def transitions(self) -> list[str]:
@@ -257,8 +248,7 @@ class FailState(BaseModel, CollectibleTransitions):
     Cause: t.Optional[str] = None
     Error: t.Optional[str] = None
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     @property
     def transitions(self) -> list[str]:
@@ -271,12 +261,9 @@ class SucceedState(BaseModel, CollectibleTransitions):
     InputPath: t.Optional[str] = None
     OutputPath: t.Optional[str] = None
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
-    _enforce_jsonpath = validator("InputPath", "OutputPath", allow_reuse=True)(
-        enforce_jsonpath
-    )
+    _enforce_jsonpath = field_validator("InputPath", "OutputPath")(enforce_jsonpath)
 
     @property
     def transitions(self) -> list[str]:
@@ -292,16 +279,14 @@ class PassState(NextOrEndState, CollectibleTransitions):
     ResultPath: t.Optional[str] = None
     Parameters: t.Optional[t.Dict[str, t.Any]] = None
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
-    _enforce_jsonpath = validator(
+    _enforce_jsonpath = field_validator(
         "InputPath",
         "OutputPath",
         "ResultPath",
         "Result",
         "Parameters",
-        allow_reuse=True,
     )(enforce_jsonpath)
 
     @property
@@ -319,23 +304,18 @@ class WaitState(NextOrEndState, CollectibleTransitions):
     SecondsPath: t.Optional[str] = None
     TimestampPath: t.Optional[str] = None
 
-    class Config:
-        extra = Extra.forbid
-
-    _enforce_jsonpath = validator(
-        "InputPath", "OutputPath", "SecondsPath", "TimestampPath", allow_reuse=True
+    model_config = ConfigDict(extra="forbid")
+    _enforce_jsonpath = field_validator(
+        "InputPath", "OutputPath", "SecondsPath", "TimestampPath"
     )(enforce_jsonpath)
+    _enforce_datetime_format = field_validator("Timestamp")(enforce_datetime_format)
 
-    _enforce_datetime_format = validator("Timestamp", allow_reuse=True)(
-        enforce_datetime_format
-    )
-
-    @root_validator(skip_on_failure=True)
-    def validate_mutually_exclusive_fields(cls, values):
+    @model_validator(mode="after")
+    def validate_mutually_exclusive_fields(self):
         enforce_exclusive_fields(
-            values, ["Seconds", "Timestamp", "SecondsPath", "TimestampPath"]
+            self, ["Seconds", "Timestamp", "SecondsPath", "TimestampPath"]
         )
-        return values
+        return self
 
     @property
     def transitions(self) -> list[str]:
@@ -351,22 +331,20 @@ class ParallelState(NextOrEndState, CollectibleTransitions):
     ResultSelector: t.Optional[t.Dict[str, t.Any]] = None
     Parameters: t.Optional[t.Dict[str, t.Any]] = None
     Branches: t.List[StepFunctionDefinition]
-    Retry: t.Optional[t.List[Retriers]] = Field(None, min_items=1)
-    Catch: t.Optional[t.List[Catchers]] = Field(None, min_items=1)
+    Retry: t.Optional[t.List[Retriers]] = Field(None, min_length=1)
+    Catch: t.Optional[t.List[Catchers]] = Field(None, min_length=1)
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
-    _enforce_min_items_if_set = validator("Branches", allow_reuse=True)(
-        enforce_min_items
-    )
-    _enforce_jsonpath = validator(
+    _enforce_min_items_if_set = field_validator(
+        "Branches",
+    )(enforce_min_items)
+    _enforce_jsonpath = field_validator(
         "InputPath",
         "OutputPath",
         "ResultPath",
         "ResultSelector",
         "Parameters",
-        allow_reuse=True,
     )(enforce_jsonpath)
 
     @property
@@ -394,20 +372,18 @@ class MapState(NextOrEndState, CollectibleTransitions):
     Iterator: StepFunctionDefinition
     ItemsPath: t.Optional[str] = None
     MaxConcurrency: t.Optional[PositiveInt] = None
-    Retry: t.Optional[t.List[Retriers]] = Field(None, min_items=1)
-    Catch: t.Optional[t.List[Catchers]] = Field(None, min_items=1)
+    Retry: t.Optional[t.List[Retriers]] = Field(None, min_length=1)
+    Catch: t.Optional[t.List[Catchers]] = Field(None, min_length=1)
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
-    _enforce_jsonpath = validator(
+    _enforce_jsonpath = field_validator(
         "InputPath",
         "OutputPath",
         "ResultPath",
         "ResultSelector",
         "Parameters",
         "ItemsPath",
-        allow_reuse=True,
     )(enforce_jsonpath)
 
     @property
@@ -444,16 +420,15 @@ class StepFunctionDefinition(BaseModel):
     States: t.Dict[str, StepFunctionState]
     Comment: t.Optional[str] = None
 
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
     def dict(self):
-        return super().dict(exclude_unset=True)
+        return super().model_dump(exclude_unset=True)
 
     def json(self):
-        return super().json(exclude_unset=True)
+        return super().model_dump_json(exclude_unset=True)
 
-    @validator("States")
+    @field_validator("States")
     def validate_states(cls, v):
         if len(v) < 1:
             raise ValueError('At least one "State" is required')
@@ -469,11 +444,11 @@ class StepFunctionDefinition(BaseModel):
             )
         return v
 
-    @root_validator(skip_on_failure=True)
-    def validate_transition_states_exist(cls, values):
-        states: dict[str, CollectibleTransitions] = values.get("States", {})
+    @model_validator(mode="after")
+    def validate_transition_states_exist(self):
+        states = self.States
         defined_states = set(states.keys())
-        referenced_states = {values["StartAt"]}
+        referenced_states = {self.StartAt}
 
         for state in states.values():
             referenced_states.update(state.transitions)
@@ -488,24 +463,4 @@ class StepFunctionDefinition(BaseModel):
             raise ValueError(
                 f'Flow definition contained unreachable state(s): {", ".join(unreferenced_states)}'
             )
-        return values
-
-
-d = {"StartAt": "Test", "States": {"Test": {"Type": "Pass", "End": True}}}
-d2 = {
-    "StartAt": "SimplePass",
-    "Comment": "This is allowed",
-    "SomeCustomField": "This is disallowed",
-    "MostCustomField": 2,
-    "States": {
-        "SimplePass": {
-            "Type": "Pass",
-            "Parameters": {},
-            "End": True,
-            "Next": "LMAO",
-        },
-    },
-}
-
-# print(StepFunctionDefinition(**d).json())
-# print(StepFunctionDefinition(**d2).dict())
+        return self

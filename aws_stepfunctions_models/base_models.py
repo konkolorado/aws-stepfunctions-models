@@ -1,24 +1,23 @@
 import abc
 import typing as t
 
-from pydantic import BaseModel, StrictBool, root_validator
+from pydantic import BaseModel, StrictBool, model_validator
 
 
 class CollectibleTransitions(abc.ABC):
     @property
     @abc.abstractmethod
-    def transitions(self) -> list[str]:
-        ...
+    def transitions(self) -> list[str]: ...
 
 
 class NextOrEndState(BaseModel):
     Next: t.Optional[str] = None
     End: StrictBool = False
 
-    @root_validator
-    def validate_mutually_exclusive_fields(cls, values):
-        if values.get("Next") and values.get("End"):
+    @model_validator(mode="after")
+    def validate_mutually_exclusive_fields(self):
+        if self.Next and self.End:
             raise ValueError('"Next" and "End" are mutually exclusive')
-        if values.get("Next") is None and not values.get("End", False):
+        if self.Next is None and not self.End:
             raise ValueError('Either "Next" or "End" are required')
-        return values
+        return self

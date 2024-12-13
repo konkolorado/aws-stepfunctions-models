@@ -1,6 +1,7 @@
 import typing as t
 
 import arrow
+from pydantic import BaseModel
 
 T = t.TypeVar("T", str, dict[str, t.Any])
 
@@ -28,9 +29,26 @@ def enforce_min_items(items: t.Optional[list]) -> t.Optional[list]:
 
 
 def enforce_exclusive_fields(
-    values: dict[str, t.Any], exclusive_fields: list[str]
-) -> dict[str, t.Any]:
-    set_fields = {f for f in exclusive_fields if values.get(f) is not None}
+    self: BaseModel, exclusive_fields: list[str], field_required: bool = True
+) -> None:
+    set_fields = {f for f in exclusive_fields if getattr(self, f, None) is not None}
+    if len(set_fields) > 1:
+        raise ValueError(
+            f"Only one of the following fields may be set: {', '.join(set_fields)}"
+        )
+    if field_required and len(set_fields) == 0:
+        raise ValueError(
+            f"At least one of the following fields must be set: {', '.join(exclusive_fields)}"
+        )
+
+
+def enforce_optional_exclusive_fields_if_set(
+    self: BaseModel, exclusive_fields: list[str]
+) -> None:
+    """
+    Enforce that if set, exactly one of a set of exclusive fields is set
+    """
+    set_fields = {f for f in exclusive_fields if getattr(self, f, None) is not None}
     if len(set_fields) > 1:
         raise ValueError(
             f"Only one of the following fields may be set: {', '.join(set_fields)}"
@@ -39,7 +57,6 @@ def enforce_exclusive_fields(
         raise ValueError(
             f"At least one of the following fields must be set: {', '.join(exclusive_fields)}"
         )
-    return values
 
 
 def enforce_datetime_format(v: str):
