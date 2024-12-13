@@ -22,12 +22,6 @@ def enforce_jsonpath(item: T | None) -> T | None:
     return item
 
 
-def enforce_min_items(items: list | None) -> list | None:
-    if items is not None and len(items) == 0:
-        raise ValueError("At least one item is required.")
-    return items
-
-
 def enforce_exclusive_fields(
     self: BaseModel, exclusive_fields: list[str], field_required: bool = True
 ) -> None:

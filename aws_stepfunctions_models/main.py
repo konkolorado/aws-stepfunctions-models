@@ -22,7 +22,6 @@ from aws_stepfunctions_models.utils import (
     enforce_datetime_format,
     enforce_exclusive_fields,
     enforce_jsonpath,
-    enforce_min_items,
 )
 
 StepFunctionValidationError = ValidationError
@@ -135,12 +134,11 @@ class DataTestExpression(BaseModel):
 
 
 class BooleanExpression(BaseModel):
-    And: list[DataTestExpression | BooleanExpression] | None = None
-    Or: list[DataTestExpression | BooleanExpression] | None = None
+    And: list[DataTestExpression | BooleanExpression] | None = Field(None, min_length=1)
+    Or: list[DataTestExpression | BooleanExpression] | None = Field(None, min_length=1)
     Not: DataTestExpression | BooleanExpression | None = None
 
     model_config = ConfigDict(extra="forbid")
-    _enforce_min_items_if_set = field_validator("And", "Or")(enforce_min_items)
 
     @model_validator(mode="after")
     def validate_only_one_boolean_choice_rule_set(self):
@@ -330,15 +328,11 @@ class ParallelState(NextOrEndState, CollectibleTransitions):
     ResultPath: str | None = None
     ResultSelector: dict | None = None
     Parameters: dict | None = None
-    Branches: list[StepFunctionDefinition]
+    Branches: list[StepFunctionDefinition] = Field(..., min_length=1)
     Retry: list[Retriers] | None = Field(None, min_length=1)
     Catch: list[Catchers] | None = Field(None, min_length=1)
 
     model_config = ConfigDict(extra="forbid")
-
-    _enforce_min_items_if_set = field_validator(
-        "Branches",
-    )(enforce_min_items)
     _enforce_jsonpath = field_validator(
         "InputPath",
         "OutputPath",
