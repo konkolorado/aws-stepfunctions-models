@@ -23,7 +23,7 @@ def enforce_jsonpath(item: t.Optional[T]) -> t.Optional[T]:
 
 def enforce_min_items(items: t.Optional[list]) -> t.Optional[list]:
     if items is not None and len(items) == 0:
-        raise ValueError(f"At least one item is required.")
+        raise ValueError("At least one item is required.")
     return items
 
 
@@ -61,4 +61,4 @@ def enforce_datetime_format(v: str):
 
     # Check that non-timezone aware date times end with Z
     if v[-5] != "+" and v[-3] != ":" and not v.endswith("Z"):
-        raise ValueError(f"Naive date-time strings must end in Z")
+        raise ValueError("Naive date-time strings must end in Z")
